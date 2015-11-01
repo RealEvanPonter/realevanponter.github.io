@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta charset="UTF-8">
+  <title>Federal Hill Restaurants and Bars</title>
+  <link rel='stylesheet' href='css/main.css'>
+</head>
+<body>
+  <div id='header'>
+    <h1>Federal Hill Restaurants and Bars</h1>
+  </div>
+  <div id='side-panel'>
+    <input data-bind="textInput: searchTerm"/>
+    <ul data-bind="foreach: locations">
+      <li data-bind="text: name, click: showInfo, visible: visible"></li>
+    </ul>
+  </div>
+  <div id="map">
+  </div>
+  <script src="js/libs/jquery.min.js"></script>
+  <script src="js/libs/knockout-3-3-0.js"></script>
+  <script src='js/app.js'></script>
+  <script async src="https://maps.googleapis.com/maps/api/js?callback=start" onerror="error()" defer></script>
+</body>
+</html>
