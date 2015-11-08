@@ -143,6 +143,8 @@ var AppViewModel = function() {
       title: loc.name,
     });
     
+    // Determine if the location should be visible, which is
+    // based on the search term, name of the location, and the tags
     loc.shouldDisplay = function() {
       var searchTerm = self.searchTerm().toLowerCase();
       var shouldDisplay = self.searchTerm() === "" ||
@@ -254,6 +256,7 @@ var AppViewModel = function() {
       'a0F8gEJ8DLP-MOQrkQRYjkNG6W0', 'BrJ3R7L9SJwZS2G_bpoyAQKORz8');
     parameters.oauth_signature = encodedSignature;
     
+    // Display this error if yelp cannot be reached
     function yelpError() {
       $('#yelp-info').text('Could not retrieve info about this location');
     }
@@ -263,6 +266,8 @@ var AppViewModel = function() {
       data: parameters,
       cache: true,
       dataType: 'jsonp',
+      
+      // Add results to the yelp-info element
       success: function(results) {
         $('#yelp-info').empty();
         var info = '<h2><a href ="' + results.url + '">' +
@@ -291,6 +296,7 @@ var AppViewModel = function() {
     }
   }
   
+  // Recenter the map when the window is resized
   $(window).resize(function() {
     self.centerAndZoomMap(Model.locations, self.map);
   });
