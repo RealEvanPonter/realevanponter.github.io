@@ -1,9 +1,113 @@
-#side-panel, #map {
-  display: inline-block;
-  vertical-align: top;
+html {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: black;
+}
+
+body {
+  position: absolute;
+  height: 98%;
+  width: 98%;
+  margin: 0 1%;
+  padding: 0;
+}
+
+#header {
+  color: #e0e0e0;
+}
+
+h1 {
+  margin: .2em 0;
+  font-size: 22px;
+}
+
+#body {
+  position: absolute;
+  top: 37px;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+#side-panel {
+  position: absolute;
+  top: 0;
+  bottom: 65%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+input {
+  width: 99%;
+  margin: 0;
+  padding: .25em 0;
+  background-color: #e0e0e0;
+  font-size: 16px;
+  transition: .5s;
+}
+
+input:hover {
+  background-color: #f7f7f7;
+}
+
+ul {
+  position: absolute;
+  top: 40px;
+  bottom: 0;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow: auto;
+}
+
+li {
+  margin: .25em .5em .25em 0;
+  padding: .5em;
+  background-color: #333333;
+  color: white;
+  cursor: pointer;
+  transition: .5s;
+}
+
+li:first-child {
+  margin-top: 0;
+}
+
+li:last-child {
+  margin-bottom: 0;
+}
+
+li:hover {
+  background-color: #555555;
+}
+
+#main-area {
+  position: absolute;
+  top: 37%;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  margin: 0;
 }
 
 #map {
-  height: 500px;
-  width: 1000px;
+  position: absolute;
+  height: 100%;
+  width: 100%;
+}
+
+@media screen and (min-width: 550px) {
+  #side-panel {
+    bottom: 0;
+    width: 250px;
+  }
+  
+  #main-area {
+    top: 0;
+    left: 260px;
+  }
 }
