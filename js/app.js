@@ -128,19 +128,30 @@ var AppViewModel = function() {
   self.map;
   self.locations = ko.observableArray();
   self.searchTerm = ko.observable("");
-  self.openLocation;
+  self.openLocation = ko.observable("0");
   
-  function Location(rawLocation, map) {
+  // Create a location
+  function Location(rawLocation, map, id) {
     var loc = this;
     
-    loc.name = rawLocation.name;
+    loc.name = ko.observable(rawLocation.name);
+    loc.id = id;
     loc.tags = rawLocation.tags;
     loc.yelpId = rawLocation.yelpId;
+    loc.yelpUrl = ko.observable("");
+    loc.ratingImgUrl = ko.observable("");
+    loc.reviewCount = ko.observable("");
+    loc.street = ko.observable("");
+    loc.city = ko.observable("");
+    loc.state = ko.observable("");
+    loc.zip = ko.observable("");
+    loc.phone = ko.observable("");
     
+    // Create a map marker for this location
     loc.marker = new google.maps.Marker({
       map: map,
       position: rawLocation.position,
-      title: loc.name,
+      title: loc.name(),
     });
     
     // Determine if the location should be visible, which is
@@ -148,18 +159,20 @@ var AppViewModel = function() {
     loc.shouldDisplay = function() {
       var searchTerm = self.searchTerm().toLowerCase();
       var shouldDisplay = self.searchTerm() === "" ||
-        loc.name.toLowerCase().indexOf(searchTerm) > -1 ||
+        loc.name().toLowerCase().indexOf(searchTerm) > -1 ||
         loc.isTermInTags(searchTerm);
       loc.marker.setVisible(shouldDisplay);
       return shouldDisplay;
     };
     
+    // Determine if this location should be visible in real time
     loc.visible = ko.computed(function() {
       return loc.shouldDisplay();
     });
     
+    // Create an infoWindow that will display info about this location
     loc.infoWindow = new google.maps.InfoWindow({
-      content: '<div id="yelp-info"></div>'
+      content: ''
     });
     
     // Display info window for only this location near its bouncing marker
@@ -167,8 +180,8 @@ var AppViewModel = function() {
       self.closePreviousWindow();
       loc.bounceMarker();
       loc.infoWindow.open(loc.marker.map, loc.marker);
+      self.openLocation(loc.id);
       yelpInfo(loc.yelpId);
-      self.openLocation = loc;
     };
     
     // Make the marker bounce
@@ -210,7 +223,7 @@ var AppViewModel = function() {
   // Create a location object for each location in the model
   self.createLocations = function(locations, map) {
     for (i=0; i<locations.length; i++) {
-      self.locations.push(new Location(locations[i], map));
+      self.locations.push(new Location(locations[i], map, i));
     }
   };
   
@@ -226,16 +239,16 @@ var AppViewModel = function() {
     map.fitBounds(markerBounds);
   };
   
-  // Close the previously opened window, if there is one
+  // Close the previously opened window
   self.closePreviousWindow = function() {
-    if (self.openLocation !== undefined) {
-      self.openLocation.infoWindow.close();
-    }
+    self.locations()[self.openLocation()].infoWindow.close();
   };
   
   // Request Yelp info about the location
   function yelpInfo(yelpId) {
+    
     var request = this;
+    var loc = self.locations()[self.openLocation()];
     
     function nonce_generate() {
       return (Math.floor(Math.random() * 1e12).toString());
@@ -256,44 +269,38 @@ var AppViewModel = function() {
       'a0F8gEJ8DLP-MOQrkQRYjkNG6W0', 'BrJ3R7L9SJwZS2G_bpoyAQKORz8');
     parameters.oauth_signature = encodedSignature;
     
-    // Display this error if yelp cannot be reached
-    function yelpError() {
-      $('#yelp-info').text('Could not retrieve info about this location');
-    }
-    
     var settings = {
       url: yelp_url,
       data: parameters,
       cache: true,
       dataType: 'jsonp',
       
-      // Add results to the yelp-info element
+      // Save results to location attributes
       success: function(results) {
-        $('#yelp-info').empty();
-        var info = '<h2><a href ="' + results.url + '">' +
-          results.name + '</a></h2>' +
-          '<image src="' + results.rating_img_url + '"/> ' +
-          results.review_count + ' reviews' +
-          '<p>' + results.location.address[0] + '<br>' +
-          results.location.city + ', ' + results.location.state_code +
-          ' ' + results.location.postal_code + '<br>' +
-          results.display_phone + '</p>';
-        $('#yelp-info').append(info);
-        clearTimeout(timeout);
+        loc.yelpUrl(results.url);
+        loc.ratingImgUrl(results.rating_img_url);
+        loc.reviewCount(results.review_count);
+        loc.street(results.location.address[0]);
+        loc.city(results.location.city);
+        loc.state(results.location.state_code);
+        loc.zip(results.location.postal_code);
+        loc.phone(results.display_phone);
+        
+        // Display results in the infoWindow
+        loc.infoWindow.setContent(
+          $('#yelp-info').prop('outerHTML'));
       },
+      
+      // Display an error message if the Yelp request is not successful
       error: function() {
-        yelpError();
+        loc.infoWindow.setContent(
+        'Could not retrieve info about this location');
       }
     };
     
-    if ($('#yelp-info').is(':empty')) {
-      var timeout = setTimeout(function() {
-        yelpError();
-      }, 8000);
-      
-      $.ajax(settings);
-      $('#yelp-info').text('hang on...');
-    }
+    // Request Yelp info and display a waiting message
+    $.ajax(settings);
+    loc.infoWindow.setContent('hang on...');
   }
   
   // Recenter the map when the window is resized
@@ -301,17 +308,18 @@ var AppViewModel = function() {
     self.centerAndZoomMap(Model.locations, self.map);
   });
   
+  // Set up the initial render
   self.initialize();
 };
 
+// Displays an error where the map is supposed to load
 function error() {
-  // Displays an error where the map is supposed to load
-  document.getElementById('map').innerHTML = 'Something went wrong...' +
+  $('map').innerHTML = 'Something went wrong...' +
     '<br>Map could not be displayed. Please check your internet connection ' +
     'and try again';
 }
 
+// Activates knockout.js
 function start() {
-  // Activates knockout.js
   ko.applyBindings(new AppViewModel());
 }

@@ -20,6 +20,22 @@
     <div id="main-area">
       <div id="map">
       </div>
+      <div id="yelp-info">
+        <h2><a data-bind="attr: {href: locations()[openLocation()].yelpUrl},
+        text: locations()[openLocation()].name"></a></h2>
+        <img data-bind="attr: {src: locations()[openLocation()].ratingImgUrl}"/>
+        <span data-bind="text: locations()[openLocation()].reviewCount"></span>
+        reviews
+        <p>
+          <span data-bind="text: locations()[openLocation()].street"></span>
+          <br>
+          <span data-bind="text: locations()[openLocation()].city"></span>,
+          <span data-bind="text: locations()[openLocation()].state"></span>
+          <span data-bind="text: locations()[openLocation()].zip"></span>
+          <br>
+          <span data-bind="text: locations()[openLocation()].phone"></span>
+        </p>
+      </div>
     </div>
   </div>
   <script src="js/libs/jquery.min.js"></script>
