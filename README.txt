@@ -10,3 +10,7 @@ Filtering
 To filter down the list and corresponding map markers, type the name of
 the location in the search bar. You can also filter by keyword, such as
 "pizza" or "american". The page will update in realtime as you type.
+
+Instructions
+Download all files from the repository to your local machine
+Launch the app by opening index.html
